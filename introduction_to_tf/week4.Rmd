@@ -1,0 +1,21 @@
+---
+title: "Week4"
+output: html_notebook
+---
+
+```{r}
+library(reticulate)
+reticulate::use_condaenv(condaenv = "deeplearning")
+
+```
+
+###Week 1
+
+```{python}
+import tensorflow as tf
+import numpy as np
+from tensorflow import keras
+
+print(tf.__version__)
+```
+
