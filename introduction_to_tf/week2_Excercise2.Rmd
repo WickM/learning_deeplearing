@@ -1,0 +1,69 @@
+---
+title: "Week2 Excercie2"
+output: html_notebook
+---
+
+In the course you learned how to do classificaiton using Fashion MNIST, a data set containing items of clothing. There's another, similar dataset called MNIST which has items of handwriting -- the digits 0 through 9.
+
+Write an MNIST classifier that trains to 99% accuracy or above, and does it without a fixed number of epochs -- i.e. you should stop training once you reach that level of accuracy.
+
+Some notes:
+
+It should succeed in less than 10 epochs, so it is okay to change epochs= to 10, but nothing larger
+When it reaches 99% or greater it should print out the string "Reached 99% accuracy so cancelling training!"
+If you add any additional variables, make sure you use the same names as the ones used in the class
+
+
+```{r}
+library(reticulate)
+reticulate::use_condaenv(condaenv = "deeplearning")
+```
+
+
+```{python librarys}
+import tensorflow as tf
+from os import path, getcwd, chdir
+from tensorflow import keras
+import numpy as np 
+print(tf.__version__)
+```
+
+```{python Daten}
+#Minst DAten aus Keras laden und normalisieren auf einen Wert zw. 0 und 1 
+mnist = tf.keras.datasets.mnist
+
+(training_images, training_labels), (test_images, test_labels) = mnist.load_data()
+training_images  = training_images / 255.0
+test_images = test_images / 255.0 
+
+print(training_images[0])
+```
+
+```{python Model creation}
+
+model = tf.keras.models.Sequential([tf.keras.layers.Flatten(), 
+                                    tf.keras.layers.Dense(128, activation=tf.nn.relu), 
+                                    tf.keras.layers.Dense(10, activation=tf.nn.softmax)])
+                                    
+model.compile(optimizer = tf.optimizers.Adam(),
+              loss = 'sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+```
+
+```{python Model training}
+class EarlyStopping(tf.keras.callbacks.Callback):
+  def on_epoch_end(self, epoch, logs={}):
+    if (np.less(0.99, logs.get('acc'))):
+      self.model.stop_training = True
+      
+callback = tf.keras.callbacks.EarlyStopping(monitor='accuracy', patience=1, min_delta=0.01)
+      
+```
+
+
+```{python Model Evaluatio}
+model.fit(training_images, training_labels, epochs=100, callbacks=[callback]) 
+#model.evaluate(test_images, test_labels)
+```
+
