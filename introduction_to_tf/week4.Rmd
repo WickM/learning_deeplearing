@@ -6,10 +6,12 @@ output: html_notebook
 ```{r}
 library(reticulate)
 reticulate::use_condaenv(condaenv = "deeplearning")
+here::dr_here()
 
 ```
 
-###Week 1
+###Week 4
+https://colab.research.google.com/github/lmoroney/dlaicourse/blob/master/Course%201%20-%20Part%208%20-%20Lesson%202%20-%20Notebook.ipynb#scrollTo=DmtkTn06pKxF
 
 ```{python}
 import tensorflow as tf
@@ -17,5 +19,96 @@ import numpy as np
 from tensorflow import keras
 
 print(tf.__version__)
+```
+
+####Daten: herunterladen und entpacken
+https://storage.googleapis.com/laurencemoroney-blog.appspot.com/horse-or-human.zip
+```{r}
+path <- here::here()
+train_path <- file.path(path,"introduction_to_tf","data","/")
+val_path <- file.path(path, "introduction_to_tf","val_data","/")
+
+```
+
+```{python}
+model = tf.keras.models.Sequential([
+    tf.keras.layers.Conv2D(16, (3,3), activation='relu', input_shape=(150, 150, 3)),
+    tf.keras.layers.MaxPooling2D(2, 2),
+    tf.keras.layers.Conv2D(32, (3,3), activation='relu'),
+    
+
+    tf.keras.layers.MaxPooling2D(2,2),
+    tf.keras.layers.Conv2D(64, (3,3), activation='relu'),
+    tf.keras.layers.MaxPooling2D(2,2),
+    
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(512, activation='relu'),
+    
+    tf.keras.layers.Dense(1, activation='sigmoid') ])
+    
+model.summary()
+
+```
+
+```{python}
+from tensorflow.keras.optimizers import RMSprop
+
+model.compile(loss='binary_crossentropy',
+              optimizer=RMSprop(lr=0.001),
+              metrics=['accuracy'])
+```
+
+```{python}
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+# All images will be rescaled by 1./255
+train_datagen = ImageDataGenerator(rescale=1/255)
+validation_datagen = ImageDataGenerator(rescale=1/255)
+
+
+# Flow training images in batches of 128 using train_datagen generator
+train_generator = train_datagen.flow_from_directory(
+        r.train_path,  
+        target_size=(150, 150), 
+        batch_size=32,
+        class_mode='binary')
+        
+validation_generator = validation_datagen.flow_from_directory(
+        r.val_path,
+        target_size=(150, 150),
+        batch_size=32,
+        class_mode='binary')
+
+```
+
+```{python}
+history = model.fit(
+      train_generator,
+      steps_per_epoch=32,  
+      epochs=15,
+      verbose=1,
+      validation_data = validation_generator,
+      validation_steps=8)
+```
+
+
+```{python}
+import numpy as np
+
+path = 'C:/Users/m.wick/Documents/eigeneProjekte/learning_deeplearing/introduction_to_tf/test_data/Pferd2.jpg'
+
+img = tf.keras.preprocessing.image.load_img(path, target_size=(150, 150))
+x = tf.keras.preprocessing.image.img_to_array(img)
+x = np.expand_dims(x, axis=0)
+
+images = np.vstack([x])
+classes = model.predict(images, batch_size=10)
+print(path)
+print(classes)
+if classes[0]>0.5:
+  print(" is a human")
+else:
+  print(" is a horse")
+
 ```
 
