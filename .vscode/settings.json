@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "C:\\Users\\m.wick\\AppData\\Local\\Continuum\\anaconda3\\envs\\deeplearning\\python.exe"
+    "python.pythonPath": "C:\\Users\\m.wick\\AppData\\Local\\Continuum\\anaconda3\\envs\\deeplearning\\python.exe",
+    "VSNotebooks.remoteKernel": true
 }
